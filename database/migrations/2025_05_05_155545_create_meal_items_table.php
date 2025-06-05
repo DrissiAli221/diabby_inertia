@@ -19,7 +19,13 @@ return new class extends Migration
             $table->float('carbs');
             $table->float('fat');
             $table->float('protein');
+            $table->float('quantity')->nullable();
+            $table->string('unit', 50)->nullable();
+            $table->string('portion_description')->nullable();
             $table->timestamps();
+            
+            // Add index for better performance
+            $table->index('meal_id');
         });
     }
 

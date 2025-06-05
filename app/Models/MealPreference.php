@@ -8,11 +8,13 @@ class MealPreference extends Model
 {
     protected $fillable = ['user_id', 'meal_item_id', 'preference'];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function mealItem() {
+    public function mealItem()
+    {
         return $this->belongsTo(MealItem::class);
     }
 }

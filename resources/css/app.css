@@ -1,3 +1,195 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --navbar-height: 5rem; /* Adjust to your actual navbar height */
+}
+
+/* Aurora Background Styling */
+.aurora-outer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0; /* fill parent */
+    background-image: radial-gradient(
+            ellipse at 20% 30%,
+            theme("colors.cyan.300 / 0.3"),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 70% 40%,
+            theme("colors.sky.300 / 0.3"),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 50% 80%,
+            theme("colors.teal.300 / 0.2"),
+            transparent 50%
+        );
+    filter: blur(50px) opacity(0.8); /* Soften and blend */
+    mix-blend-mode: multiply; /* Blends well with background gradient */
+    animation: aurora-outer 30s ease-in-out infinite alternate; /* Apply Tailwind animation */
+}
+
+.dark .aurora-outer {
+    background-image: radial-gradient(
+            ellipse at 20% 30%,
+            theme("colors.cyan.700 / 0.3"),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 70% 40%,
+            theme("colors.sky.700 / 0.3"),
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at 50% 80%,
+            theme("colors.teal.600 / 0.2"),
+            transparent 50%
+        );
+    filter: blur(60px) opacity(0.6);
+    mix-blend-mode: screen; /* Screen or lighten often works better for dark backgrounds */
+}
+
+/* Inner layer for more complexity */
+.aurora-inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0; /* fill parent */
+    background-image: radial-gradient(
+            ellipse at 80% 20%,
+            theme("colors.sky.200 / 0.25"),
+            transparent 40%
+        ),
+        radial-gradient(
+            ellipse at 30% 70%,
+            theme("colors.teal.200 / 0.25"),
+            transparent 40%
+        );
+    filter: blur(40px) opacity(0.7);
+    mix-blend-mode: overlay;
+    animation: aurora-inner 30s ease-in-out infinite alternate-reverse; /* Different timing/direction */
+}
+
+.dark .aurora-inner {
+    background-image: radial-gradient(
+            ellipse at 80% 20%,
+            theme("colors.sky.800 / 0.25"),
+            transparent 40%
+        ),
+        radial-gradient(
+            ellipse at 30% 70%,
+            theme("colors.teal.700 / 0.25"),
+            transparent 40%
+        );
+    filter: blur(50px) opacity(0.5);
+    mix-blend-mode: lighten;
+}
+
+/* Feature Card Animated Border - add to your app.css */
+@layer components {
+    .animate-feature-border-glow {
+        @apply absolute -inset-px rounded-xl; /* Slightly larger than parent to create border effect */
+        background-image: linear-gradient(
+            120deg,
+            transparent,
+            theme("colors.cyan.400 / 0.6"),
+            /* Adjusted opacity for subtlety */ theme("colors.sky.400 / 0.6"),
+            transparent
+        );
+        background-size: 200% 200%;
+        animation: feature-border-glow 4s linear infinite; /* Uses Tailwind keyframe */
+    }
+    .dark .animate-feature-border-glow {
+        background-image: linear-gradient(
+            120deg,
+            transparent,
+            theme("colors.cyan.300 / 0.7"),
+            theme("colors.sky.300 / 0.7"),
+            transparent
+        );
+    }
+}
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+        --primary: 0 0% 9%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%;
+        --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 89.8%;
+        --input: 0 0% 89.8%;
+        --ring: 0 0% 3.9%;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.5rem;
+    }
+    .dark {
+        --background: 0 0% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 0 0% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 0 0% 9%;
+        --secondary: 0 0% 14.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 0 0% 14.9%;
+        --muted-foreground: 0 0% 63.9%;
+        --accent: 0 0% 14.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 14.9%;
+        --input: 0 0% 14.9%;
+        --ring: 0 0% 83.1%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+    }
+    .theme {
+        --animate-line-shadow: line-shadow 15s linear infinite;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@theme inline {
+    @keyframes line-shadow {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 100% -100%;
+        }
+    }
+}

@@ -21,6 +21,10 @@ return new class extends Migration
             $table->float('total_protein')->nullable();
             $table->timestamp('eaten_at');
             $table->timestamps();
+            
+            // Add indexes for better performance
+            $table->index(['user_id', 'eaten_at']);
+            $table->index(['user_id', 'meal_type']);
         });
     }
 

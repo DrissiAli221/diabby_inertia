@@ -8,7 +8,8 @@ class Goal extends Model
 {
     protected $fillable = ['user_id', 'goal_type', 'target_value', 'unit', 'current_value', 'status'];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

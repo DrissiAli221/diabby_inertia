@@ -14,11 +14,16 @@ return new class extends Migration
         Schema::create('glycemia_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->float('value');
+            $table->float('value', 4, 1); // More precise for glycemia values
             $table->timestamp('measured_at');
             $table->enum('status', ['normal', 'high', 'low']);
             $table->text('note')->nullable();
             $table->timestamps();
+
+            // Add indexes for better performance
+            $table->index(['user_id', 'measured_at']);
+            $table->index(['user_id', 'status']);
+            $table->index('measured_at');
         });
     }
 
