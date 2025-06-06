@@ -112,28 +112,43 @@ class MealController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created meal in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'meal_type' => 'required|in:breakfast,lunch,dinner,snack',
-            'eaten_at' => 'required|date',
-        ]);
+   /**
+ * Store a newly created meal in storage.
+ */
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'meal_type' => 'required|in:breakfast,lunch,dinner,snack',
+        'eaten_at' => 'required|date',
+        'eaten_time' => 'nullable|date_format:H:i', // Optional time field
+    ]);
 
-        $meal = Auth::user()->meals()->create([
-            'meal_type' => $validated['meal_type'],
-            'eaten_at' => $validated['eaten_at'],
-            'total_calories' => 0,
-            'total_carbs' => 0,
-            'total_fat' => 0,
-            'total_protein' => 0,
-        ]);
-
-        return redirect()->route('nutrition.index', ['date' => Carbon::parse($validated['eaten_at'])->format('Y-m-d')])
-            ->with('success', 'Repas ajouté avec succès.');
+    // Parse the base date
+    $baseDate = Carbon::parse($validated['eaten_at']);
+    
+    // If time is provided, use it; otherwise use default time for meal type
+    if (isset($validated['eaten_time'])) {
+        $eatenAt = $baseDate->setTimeFromTimeString($validated['eaten_time']);
+    } else {
+        $defaultTime = Meal::getDefaultTimeForMealType($validated['meal_type']);
+        $eatenAt = $baseDate->setTimeFromTimeString($defaultTime);
     }
+
+    // Ensure we're working in the correct timezone
+    $eatenAt = $eatenAt->timezone(config('app.timezone'));
+
+    $meal = Auth::user()->meals()->create([
+        'meal_type' => $validated['meal_type'],
+        'eaten_at' => $eatenAt,
+        'total_calories' => 0,
+        'total_carbs' => 0,
+        'total_fat' => 0,
+        'total_protein' => 0,
+    ]);
+
+    return redirect()->route('nutrition.index', ['date' => $eatenAt->format('Y-m-d')])
+        ->with('success', 'Repas ajouté avec succès.');
+}
 
     /**
      * Update the specified meal in storage.
@@ -240,7 +255,7 @@ class MealController extends Controller
                 'id' => 1,
                 'name' => 'Poulet grillé aux herbes',
                 'description' => 'Avec quinoa et légumes de saison',
-                'image' => '/images/recipes/poulet-grille.jpg',
+                'image' => 'https://images.unsplash.com/photo-1597577652129-7ffad9d37ad4?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 'preparation_time' => 30,
                 'calories' => 280,
                 'glycemic_index' => 'bas',
@@ -254,7 +269,7 @@ class MealController extends Controller
                 'id' => 2,
                 'name' => 'Yaourt grec aux fruits rouges',
                 'description' => 'Avec amandes et graines de chia',
-                'image' => '/images/recipes/yaourt-grec.jpg',
+                'image' => 'https://plus.unsplash.com/premium_photo-1668615553418-36ecec70eccb?q=80&w=3648&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 'preparation_time' => 5,
                 'calories' => 120,
                 'glycemic_index' => 'bas',

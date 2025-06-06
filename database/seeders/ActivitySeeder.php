@@ -14,13 +14,13 @@ class ActivitySeeder extends Seeder
      */
     public function run(): void
     {
-        // Get the first user or create one
-        $user = User::first() ?? User::factory()->create([
-            'name' => 'Jean Dupont',
-            'email' => 'jean@example.com',
-        ]);
+        // Retrieve or create the user
+        $user = User::firstOrCreate(
+            ['email' => 'drissiali2004@gmail.com'],
+            ['name' => 'Drissi Ali']
+        );
 
-        // Create realistic activities for the past 30 days
+        // Generate realistic activities
         $this->createRealisticActivities($user);
     }
 
@@ -30,136 +30,83 @@ class ActivitySeeder extends Seeder
     private function createRealisticActivities(User $user): void
     {
         $now = Carbon::now();
-        
-        // Create activities for the past 30 days
-        for ($day = 30; $day >= 0; $day--) {
-            $date = $now->copy()->subDays($day);
-            
-            // Skip some days randomly (rest days)
-            if (rand(1, 10) <= 3) {
-                continue;
+
+        // Randomly select 12 to 18 days in the past 30 days as active days
+        $activeDays = collect(range(1, 30))
+            ->shuffle()
+            ->take(rand(12, 18))
+            ->sort()
+            ->values();
+
+        foreach ($activeDays as $dayOffset) {
+            $date = $now->copy()->subDays($dayOffset);
+
+            // Randomly decide the number of activities for the day (1 or 2)
+            $activityCount = rand(1, 2);
+
+            if ($activityCount >= 1) {
+                $this->createRandomActivity($user, $date->copy()->setTime(rand(6, 10), rand(0, 59)));
             }
-            
-            // Morning activity (60% chance)
-            if (rand(1, 10) <= 6) {
-                $this->createMorningActivity($user, $date);
-            }
-            
-            // Evening activity (40% chance)
-            if (rand(1, 10) <= 4) {
-                $this->createEveningActivity($user, $date);
+            if ($activityCount === 2) {
+                $this->createRandomActivity($user, $date->copy()->setTime(rand(17, 21), rand(0, 59)));
             }
         }
-        
-        // Create some activities for today
-        $this->createTodayActivities($user);
+
+        // Optionally add an activity for today
+        if (rand(0, 1)) {
+            $this->createRandomActivity($user, $now->copy()->setTime(rand(7, 20), rand(0, 59)));
+        }
     }
 
     /**
-     * Create morning activity
+     * Create a random activity for a user at a specific datetime
      */
-    private function createMorningActivity(User $user, Carbon $date): void
+    private function createRandomActivity(User $user, Carbon $datetime): void
     {
-        $activities = ['walking', 'running', 'cycling', 'yoga'];
-        $activityType = $activities[array_rand($activities)];
-        
-        $duration = match($activityType) {
+        $activityPools = [
+            'morning' => ['walking', 'running', 'cycling', 'yoga'],
+            'evening' => ['strength_training', 'gym', 'swimming', 'dancing', 'tennis']
+        ];
+
+        $hour = $datetime->hour;
+        $slot = $hour < 12 ? 'morning' : 'evening';
+
+        $activityType = $activityPools[$slot][array_rand($activityPools[$slot])];
+
+        $duration = match ($activityType) {
             'walking' => rand(20, 45),
             'running' => rand(20, 60),
             'cycling' => rand(30, 90),
             'yoga' => rand(30, 60),
-            default => rand(20, 45)
-        };
-        
-        $intensity = match($activityType) {
-            'walking' => ['low', 'moderate'][array_rand(['low', 'moderate'])],
-            'running' => ['moderate', 'high'][array_rand(['moderate', 'high'])],
-            'cycling' => ['low', 'moderate', 'high'][array_rand(['low', 'moderate', 'high'])],
-            'yoga' => 'low',
-            default => 'moderate'
-        };
-        
-        Activity::create([
-            'user_id' => $user->id,
-            'activity_type' => $activityType,
-            'duration_minutes' => $duration,
-            'intensity' => $intensity,
-            'burned_calories' => $this->calculateBurnedCalories($activityType, $duration, $intensity),
-            'activity_date' => $date->copy()->setTime(rand(6, 9), rand(0, 59)),
-        ]);
-    }
-
-    /**
-     * Create evening activity
-     */
-    private function createEveningActivity(User $user, Carbon $date): void
-    {
-        $activities = ['strength_training', 'gym', 'swimming', 'dancing', 'tennis'];
-        $activityType = $activities[array_rand($activities)];
-        
-        $duration = match($activityType) {
             'strength_training' => rand(20, 45),
             'gym' => rand(45, 90),
             'swimming' => rand(30, 60),
             'dancing' => rand(30, 90),
             'tennis' => rand(45, 90),
-            default => rand(30, 60)
+            default => rand(30, 60),
         };
-        
-        $intensity = match($activityType) {
-            'strength_training' => ['moderate', 'high'][array_rand(['moderate', 'high'])],
-            'gym' => ['moderate', 'high'][array_rand(['moderate', 'high'])],
-            'swimming' => ['low', 'moderate', 'high'][array_rand(['low', 'moderate', 'high'])],
-            'dancing' => ['moderate', 'high'][array_rand(['moderate', 'high'])],
-            'tennis' => ['moderate', 'high'][array_rand(['moderate', 'high'])],
-            default => 'moderate'
-        };
-        
+
+        $intensityLevels = [
+            'walking' => ['low', 'moderate'],
+            'running' => ['moderate', 'high'],
+            'cycling' => ['low', 'moderate', 'high'],
+            'yoga' => ['low'],
+            'strength_training' => ['moderate', 'high'],
+            'gym' => ['moderate', 'high'],
+            'swimming' => ['low', 'moderate', 'high'],
+            'dancing' => ['moderate', 'high'],
+            'tennis' => ['moderate', 'high'],
+        ];
+
+        $intensity = $intensityLevels[$activityType][array_rand($intensityLevels[$activityType])];
+
         Activity::create([
             'user_id' => $user->id,
             'activity_type' => $activityType,
             'duration_minutes' => $duration,
             'intensity' => $intensity,
             'burned_calories' => $this->calculateBurnedCalories($activityType, $duration, $intensity),
-            'activity_date' => $date->copy()->setTime(rand(17, 21), rand(0, 59)),
-        ]);
-    }
-
-    /**
-     * Create activities for today
-     */
-    private function createTodayActivities(User $user): void
-    {
-        $today = Carbon::today();
-        
-        // Morning walk
-        Activity::create([
-            'user_id' => $user->id,
-            'activity_type' => 'walking',
-            'duration_minutes' => 30,
-            'intensity' => 'moderate',
-            'burned_calories' => $this->calculateBurnedCalories('walking', 30, 'moderate'),
-            'activity_date' => $today->copy()->setTime(9, 30),
-        ]);
-        
-        // Afternoon cycling
-        Activity::create([
-            'user_id' => $user->id,
-            'activity_type' => 'cycling',
-            'duration_minutes' => 25,
-            'intensity' => 'high',
-            'burned_calories' => $this->calculateBurnedCalories('cycling', 25, 'high'),
-            'activity_date' => $today->copy()->setTime(18, 15),
-        ]);
-        
-        // Evening strength training
-        Activity::create([
-            'user_id' => $user->id,
-            'activity_type' => 'strength_training',
-            'duration_minutes' => 20,
-            'intensity' => 'moderate',
-            'burned_calories' => $this->calculateBurnedCalories('strength_training', 20, 'moderate'),
-            'activity_date' => $today->copy()->setTime(2, 0),
+            'activity_date' => $datetime,
         ]);
     }
 
@@ -170,7 +117,7 @@ class ActivitySeeder extends Seeder
     {
         // Assuming average weight of 70kg for calculation
         $weight = 70;
-        
+
         $metValues = [
             'walking' => ['low' => 2.5, 'moderate' => 3.5, 'high' => 4.5],
             'running' => ['low' => 6.0, 'moderate' => 8.0, 'high' => 11.0],
@@ -185,9 +132,9 @@ class ActivitySeeder extends Seeder
             'basketball' => ['low' => 6.0, 'moderate' => 8.0, 'high' => 10.0],
             'gym' => ['low' => 3.0, 'moderate' => 5.0, 'high' => 6.0],
         ];
-        
+
         $met = $metValues[$activityType][$intensity] ?? 4.0;
-        
+
         // Calories = MET × weight (kg) × time (hours)
         return round($met * $weight * ($duration / 60), 1);
     }

@@ -41,6 +41,29 @@ class Meal extends Model
     ];
 
     /**
+     * Mutator for eaten_at to ensure proper timezone handling
+     */
+    public function setEatenAtAttribute($value)
+    {
+        if ($value) {
+            // If it's already a Carbon instance, use as-is
+            if ($value instanceof Carbon) {
+                $this->attributes['eaten_at'] = $value->utc();
+            } else {
+                // Parse the value and ensure it's in the correct timezone
+                $carbon = Carbon::parse($value);
+                
+                // If no timezone is specified, assume it's in the app timezone
+                if (!$carbon->getTimezone() || $carbon->getTimezone()->getName() === 'UTC') {
+                    $carbon->setTimezone(config('app.timezone'));
+                }
+                
+                $this->attributes['eaten_at'] = $carbon->utc();
+            }
+        }
+    }
+
+    /**
      * Get the user that owns the meal.
      */
     public function user(): BelongsTo
@@ -89,7 +112,7 @@ class Meal extends Model
      */
     public function getTimeAttribute(): string
     {
-        return $this->eaten_at->format('H:i');
+        return $this->eaten_at->timezone(config('app.timezone'))->format('H:i');
     }
 
     /**
@@ -97,7 +120,7 @@ class Meal extends Model
      */
     public function getDateAttribute(): string
     {
-        return $this->eaten_at->locale('fr')->isoFormat('D MMMM YYYY');
+        return $this->eaten_at->timezone(config('app.timezone'))->locale('fr')->isoFormat('D MMMM YYYY');
     }
 
     /**
@@ -117,7 +140,11 @@ class Meal extends Model
      */
     public function scopeForDate($query, $date)
     {
-        return $query->whereDate('eaten_at', $date);
+        // Ensure we're comparing dates in the correct timezone
+        $startOfDay = Carbon::parse($date)->timezone(config('app.timezone'))->startOfDay()->utc();
+        $endOfDay = Carbon::parse($date)->timezone(config('app.timezone'))->endOfDay()->utc();
+        
+        return $query->whereBetween('eaten_at', [$startOfDay, $endOfDay]);
     }
 
     /**
@@ -125,7 +152,7 @@ class Meal extends Model
      */
     public function scopeToday($query)
     {
-        return $query->whereDate('eaten_at', today());
+        return $query->forDate(today());
     }
 
     /**

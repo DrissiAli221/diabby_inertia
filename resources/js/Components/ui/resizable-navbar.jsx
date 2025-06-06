@@ -189,18 +189,11 @@ export const MobileNavToggle = ({
   );
 };
 
-export const NavbarLogo = () => {
+export const NavbarLogo = ({ children }) => {
   return (
-    <a
-      href="#"
-      className="relative z-20 flex items-center px-2 py-1 mr-4 space-x-2 text-sm font-normal text-black">
-      <img
-        src="https://assets.aceternity.com/logo-dark.png"
-        alt="logo"
-        width={30}
-        height={30} />
-      <span className="font-medium text-black dark:text-white">Startup</span>
-    </a>
+    <div className="relative z-20 flex items-center px-2 py-1 mr-4 space-x-2 text-sm font-normal text-black">
+      {children}
+    </div>
   );
 };
 

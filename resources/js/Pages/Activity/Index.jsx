@@ -4,18 +4,40 @@ import { useState } from "react";
 import { Head, useForm, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Plus, Target, TrendingUp, Heart, Trash2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress"; // Assuming shadcn/ui Progress
+import {
+    Plus,
+    Target,
+    TrendingUp,
+    Heart,
+    Trash2,
+    Zap,
+    Trophy,
+    Smile,
+    Weight,
+    Activity as ActivityIcon,
+    Link as LinkIcon,
+    Edit3,
+} from "lucide-react";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
+    DialogFooter,
     DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -57,76 +79,104 @@ export default function Index({
 
     const deleteActivity = (activityId) => {
         if (confirm("Êtes-vous sûr de vouloir supprimer cette activité ?")) {
-            router.delete(route("activity.destroy", activityId));
+            router.delete(route("activity.destroy", activityId), {
+                preserveScroll: true,
+            });
         }
     };
 
-    const getIntensityColor = (intensity) => {
+    // Original getIntensityColor, adapted for Badge variant
+    const getIntensityBadgeVariant = (intensity) => {
         switch (intensity) {
             case "low":
-                return "bg-green-100 text-green-800";
+                return "bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-700/30 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600";
             case "moderate":
-                return "bg-orange-100 text-orange-800";
+                return "bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-700/30 dark:text-amber-300 border-amber-300 dark:border-amber-600";
             case "high":
-                return "bg-red-100 text-red-800";
+                return "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-700/30 dark:text-red-300 border-red-300 dark:border-red-600";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-slate-100 text-slate-800 hover:bg-slate-100 dark:bg-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600";
         }
     };
 
-    const getBenefitIcon = (type) => {
-        switch (type) {
-            case "glycemia_stability":
-                return "🩸";
-            case "weight_management":
-                return "⚖️";
-            case "mood":
-                return "😊";
-            default:
-                return "💪";
-        }
-    };
+    const getBenefitStyling = (type, level) => {
+        const icons = {
+            glycemia_stability: <ActivityIcon className="w-5 h-5" />,
+            weight_management: <Weight className="w-5 h-5" />,
+            mood: <Smile className="w-5 h-5" />,
+            default: <Trophy className="w-5 h-5" />,
+        };
+        const colors = {
+            excellent: "text-emerald-600 dark:text-emerald-400",
+            good: "text-amber-600 dark:text-amber-400",
+            fair: "text-red-600 dark:text-red-400",
+            default: "text-slate-600 dark:text-slate-400",
+        };
+        const progressColors = {
+            // For shadcn/ui Progress custom color
+            excellent: "bg-emerald-500",
+            good: "bg-amber-500",
+            fair: "bg-red-500",
+            default: "bg-slate-500",
+        };
 
-    const getBenefitColor = (level) => {
-        switch (level) {
-            case "excellent":
-                return "text-green-600";
-            case "good":
-                return "text-orange-600";
-            case "fair":
-                return "text-red-600";
-            default:
-                return "text-gray-600";
-        }
+        return {
+            icon: icons[type] || icons.default,
+            textColor: colors[level] || colors.default,
+            progressColorClass: progressColors[level] || progressColors.default, // class for the progress bar indicator
+        };
     };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                            Activité physique
-                        </h2>
-                        <p className="mt-1 text-sm text-gray-600">
-                            Suivez vos progrès et restez en forme
-                        </p>
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 shadow-sm bg-emerald-100 dark:bg-emerald-800/30 rounded-xl">
+                            <Zap className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-semibold leading-tight text-slate-800 dark:text-slate-100">
+                                Activité Physique
+                            </h2>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                Suivez vos progrès et restez en forme.
+                            </p>
+                        </div>
                     </div>
-                    <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+                    <Dialog
+                        open={showAddForm}
+                        onOpenChange={(isOpen) => {
+                            setShowAddForm(isOpen);
+                            if (!isOpen) reset();
+                        }}
+                    >
                         <DialogTrigger asChild>
-                            <Button className="bg-green-600 hover:bg-green-700">
-                                <Plus className="w-4 h-4 mr-2" />
+                            <Button className="text-white transition-all shadow-md bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 hover:shadow-lg">
+                                <Plus className="w-5 h-5 mr-2" />
                                 Ajouter une activité
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-slate-800">
                             <DialogHeader>
-                                <DialogTitle>Nouvelle activité</DialogTitle>
+                                <DialogTitle className="text-slate-900 dark:text-slate-100">
+                                    Nouvelle activité
+                                </DialogTitle>
+                                <DialogDescription className="text-slate-600 dark:text-slate-400">
+                                    Enregistrez une nouvelle session d'activité
+                                    physique.
+                                </DialogDescription>
                             </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <form
+                                onSubmit={handleSubmit}
+                                className="py-4 space-y-6"
+                            >
                                 <div>
-                                    <Label htmlFor="activity_type">
+                                    <Label
+                                        htmlFor="activity_type"
+                                        className="text-slate-700 dark:text-slate-300"
+                                    >
                                         Type d'activité
                                     </Label>
                                     <Select
@@ -135,14 +185,15 @@ export default function Index({
                                             setData("activity_type", value)
                                         }
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-full mt-1 dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-emerald-500 focus:border-emerald-500">
                                             <SelectValue placeholder="Sélectionnez une activité" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            {activityTypes.map((type) => (
+                                        <SelectContent className="dark:bg-slate-700 dark:text-white">
+                                            {activityTypes?.map((type) => (
                                                 <SelectItem
                                                     key={type.value}
                                                     value={type.value}
+                                                    className="dark:hover:bg-slate-600"
                                                 >
                                                     {type.icon} {type.label}
                                                 </SelectItem>
@@ -150,13 +201,16 @@ export default function Index({
                                         </SelectContent>
                                     </Select>
                                     {errors.activity_type && (
-                                        <p className="mt-1 text-sm text-red-500">
+                                        <p className="mt-1 text-sm text-red-500 dark:text-red-400">
                                             {errors.activity_type}
                                         </p>
                                     )}
                                 </div>
                                 <div>
-                                    <Label htmlFor="duration_minutes">
+                                    <Label
+                                        htmlFor="duration_minutes"
+                                        className="text-slate-700 dark:text-slate-300"
+                                    >
                                         Durée (minutes)
                                     </Label>
                                     <Input
@@ -171,50 +225,67 @@ export default function Index({
                                                 e.target.value
                                             )
                                         }
-                                        className={
+                                        className={`mt-1 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white ${
                                             errors.duration_minutes
                                                 ? "border-red-500"
-                                                : ""
-                                        }
+                                                : "border-slate-300"
+                                        }`}
                                         required
                                     />
                                     {errors.duration_minutes && (
-                                        <p className="mt-1 text-sm text-red-500">
+                                        <p className="mt-1 text-sm text-red-500 dark:text-red-400">
                                             {errors.duration_minutes}
                                         </p>
                                     )}
                                 </div>
                                 <div>
-                                    <Label htmlFor="intensity">Intensité</Label>
+                                    <Label
+                                        htmlFor="intensity"
+                                        className="text-slate-700 dark:text-slate-300"
+                                    >
+                                        Intensité
+                                    </Label>
                                     <Select
                                         value={data.intensity}
                                         onValueChange={(value) =>
                                             setData("intensity", value)
                                         }
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-full mt-1 dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-emerald-500 focus:border-emerald-500">
                                             <SelectValue placeholder="Sélectionnez l'intensité" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="low">
+                                        <SelectContent className="dark:bg-slate-700 dark:text-white">
+                                            <SelectItem
+                                                value="low"
+                                                className="dark:hover:bg-slate-600"
+                                            >
                                                 🟢 Intensité légère
                                             </SelectItem>
-                                            <SelectItem value="moderate">
+                                            <SelectItem
+                                                value="moderate"
+                                                className="dark:hover:bg-slate-600"
+                                            >
                                                 🟡 Intensité modérée
                                             </SelectItem>
-                                            <SelectItem value="high">
+                                            <SelectItem
+                                                value="high"
+                                                className="dark:hover:bg-slate-600"
+                                            >
                                                 🔴 Intensité élevée
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {errors.intensity && (
-                                        <p className="mt-1 text-sm text-red-500">
+                                        <p className="mt-1 text-sm text-red-500 dark:text-red-400">
                                             {errors.intensity}
                                         </p>
                                     )}
                                 </div>
                                 <div>
-                                    <Label htmlFor="activity_date">
+                                    <Label
+                                        htmlFor="activity_date"
+                                        className="text-slate-700 dark:text-slate-300"
+                                    >
                                         Date et heure
                                     </Label>
                                     <Input
@@ -227,33 +298,38 @@ export default function Index({
                                                 e.target.value
                                             )
                                         }
-                                        className={
+                                        className={`mt-1 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white ${
                                             errors.activity_date
                                                 ? "border-red-500"
-                                                : ""
-                                        }
+                                                : "border-slate-300"
+                                        }`}
                                         required
                                     />
                                     {errors.activity_date && (
-                                        <p className="mt-1 text-sm text-red-500">
+                                        <p className="mt-1 text-sm text-red-500 dark:text-red-400">
                                             {errors.activity_date}
                                         </p>
                                     )}
                                 </div>
-                                <div className="flex justify-end space-x-2">
+                                <DialogFooter className="pt-2 space-y-2 sm:justify-end sm:space-y-0 sm:space-x-2">
                                     <Button
                                         type="button"
                                         variant="outline"
                                         onClick={() => setShowAddForm(false)}
+                                        className="dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700"
                                     >
                                         Annuler
                                     </Button>
-                                    <Button type="submit" disabled={processing}>
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                                    >
                                         {processing
                                             ? "Enregistrement..."
                                             : "Enregistrer"}
                                     </Button>
-                                </div>
+                                </DialogFooter>
                             </form>
                         </DialogContent>
                     </Dialog>
@@ -268,78 +344,99 @@ export default function Index({
                         {/* Main Content - Left Side */}
                         <div className="space-y-6 lg:col-span-2">
                             {/* Weekly Progress */}
-                            <Card>
+                            <Card className="shadow-lg dark:bg-slate-800">
                                 <CardHeader>
-                                    <CardTitle>
-                                        Progression hebdomadaire
+                                    <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                        Progression Hebdomadaire
                                     </CardTitle>
+                                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+                                        Votre objectif d'activité pour la
+                                        semaine.
+                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="flex items-center space-x-6">
-                                        <div className="relative w-24 h-24">
+                                    <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0">
+                                        <div className="relative w-28 h-28 sm:w-32 sm:h-32">
+                                            {" "}
+                                            {/* Slightly larger */}
                                             <svg
-                                                className="w-24 h-24 transform -rotate-90"
+                                                className="w-full h-full transform -rotate-90"
                                                 viewBox="0 0 100 100"
                                             >
                                                 <circle
                                                     cx="50"
                                                     cy="50"
-                                                    r="40"
+                                                    r="42"
                                                     stroke="currentColor"
-                                                    strokeWidth="8"
+                                                    strokeWidth="10"
                                                     fill="transparent"
-                                                    className="text-gray-200"
+                                                    className="text-slate-200 dark:text-slate-700"
                                                 />
                                                 <circle
                                                     cx="50"
                                                     cy="50"
-                                                    r="40"
+                                                    r="42"
                                                     stroke="currentColor"
-                                                    strokeWidth="8"
+                                                    strokeWidth="10"
                                                     fill="transparent"
                                                     strokeDasharray={`${
-                                                        2 * Math.PI * 40
+                                                        2 * Math.PI * 42
                                                     }`}
                                                     strokeDashoffset={`${
                                                         2 *
                                                         Math.PI *
-                                                        40 *
+                                                        42 *
                                                         (1 -
-                                                            weeklyProgress.percentage /
+                                                            (weeklyProgress?.percentage ||
+                                                                0) /
                                                                 100)
                                                     }`}
-                                                    className="text-green-500"
+                                                    className="text-emerald-500 dark:text-emerald-400"
                                                     strokeLinecap="round"
                                                 />
                                             </svg>
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <span className="text-2xl font-bold text-green-600">
-                                                    {weeklyProgress.percentage}%
+                                                <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                                                    {weeklyProgress?.percentage ||
+                                                        0}
+                                                    %
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="flex-1">
+                                        <div className="flex-1 text-center sm:text-left">
                                             <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm font-medium">
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                                     Objectif:{" "}
-                                                    {weeklyProgress.goal} min
+                                                    {weeklyProgress?.goal || 0}{" "}
+                                                    min
                                                 </span>
-                                                <span className="text-sm text-gray-600">
+                                                <span className="text-sm text-slate-500 dark:text-slate-400">
                                                     Réalisé:{" "}
-                                                    {weeklyProgress.achieved}{" "}
+                                                    {weeklyProgress?.achieved ||
+                                                        0}{" "}
                                                     min
                                                 </span>
                                             </div>
                                             <Progress
                                                 value={
-                                                    weeklyProgress.percentage
+                                                    weeklyProgress?.percentage ||
+                                                    0
                                                 }
-                                                className="h-2"
-                                            />
-                                            <p className="mt-2 text-xs text-green-600">
-                                                {weeklyProgress.remaining > 0
+                                                className="h-2.5 [&>*]:bg-emerald-500 dark:[&>*]:bg-emerald-400"
+                                            />{" "}
+                                            {/* shadcn progress color */}
+                                            <p
+                                                className={`mt-2.5 text-xs ${
+                                                    (weeklyProgress?.remaining ||
+                                                        0) > 0
+                                                        ? "text-amber-600 dark:text-amber-400"
+                                                        : "text-emerald-600 dark:text-emerald-400"
+                                                }`}
+                                            >
+                                                {(weeklyProgress?.remaining ||
+                                                    0) > 0
                                                     ? `Plus que ${weeklyProgress.remaining} minutes pour atteindre votre objectif !`
-                                                    : "En bonne voie ! 💪"}
+                                                    : "Objectif atteint, bravo ! 💪"}
                                             </p>
                                         </div>
                                     </div>
@@ -347,167 +444,194 @@ export default function Index({
                             </Card>
 
                             {/* Activity Types Distribution */}
-                            <Card>
+                            <Card className="shadow-lg dark:bg-slate-800">
                                 <CardHeader>
-                                    <CardTitle>Types d'activités</CardTitle>
+                                    <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                        Répartition des Activités
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {activityDistribution.map(
-                                            (activity, index) => (
-                                                <div
-                                                    key={activity.type}
-                                                    className="text-center"
-                                                >
-                                                    <div className="flex items-center justify-center w-16 h-16 mx-auto mb-2 bg-blue-100 rounded-full">
-                                                        <span className="text-2xl">
-                                                            {activity.icon}
-                                                        </span>
+                                    {activityDistribution &&
+                                    activityDistribution.length > 0 ? (
+                                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                                            {activityDistribution.map(
+                                                (activity) => (
+                                                    <div
+                                                        key={activity.type}
+                                                        className="flex flex-col items-center p-4 text-center rounded-lg bg-slate-50 dark:bg-slate-700/50"
+                                                    >
+                                                        <div className="flex items-center justify-center mx-auto mb-2 rounded-full w-14 h-14 bg-sky-100 dark:bg-sky-500/20">
+                                                            <span className="text-2xl">
+                                                                {activity.icon}
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                                            {
+                                                                activity.type_french
+                                                            }
+                                                        </div>
+                                                        <div className="text-xl font-bold text-sky-600 dark:text-sky-400">
+                                                            {
+                                                                activity.percentage
+                                                            }
+                                                            %
+                                                        </div>
+                                                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {activity.minutes}{" "}
+                                                            min
+                                                        </div>
                                                     </div>
-                                                    <div className="text-sm font-medium">
-                                                        {activity.type_french}
-                                                    </div>
-                                                    <div className="text-2xl font-bold text-blue-600">
-                                                        {activity.percentage}%
-                                                    </div>
-                                                    <div className="text-xs text-gray-600">
-                                                        {activity.minutes} min
-                                                    </div>
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="py-4 text-sm text-center text-slate-500 dark:text-slate-400">
+                                            Aucune donnée de répartition
+                                            disponible.
+                                        </p>
+                                    )}
                                 </CardContent>
                             </Card>
 
                             {/* Activity Journal */}
-                            <Card>
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle>
-                                            Journal d'activité
+                            <Card className="shadow-lg dark:bg-slate-800">
+                                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                                    <div>
+                                        <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                            Journal d'Activité
                                         </CardTitle>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">
-                                                Connecter ma montre
-                                            </span>
-                                            <div className="relative w-8 h-4 bg-gray-200 rounded-full">
-                                                <div className="absolute top-0 left-0 w-4 h-4 bg-white rounded-full shadow"></div>
-                                            </div>
-                                        </div>
+                                        <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+                                            Vos sessions récentes.
+                                        </CardDescription>
                                     </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700"
+                                    >
+                                        <LinkIcon className="w-3.5 h-3.5 mr-2" />{" "}
+                                        Connecter Appareil
+                                    </Button>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {activities.length > 0 ? (
-                                        activities.map((activity) => (
-                                            <div
-                                                key={activity.id}
-                                                className="flex items-center justify-between p-4 rounded-lg bg-gray-50"
-                                            >
-                                                <div className="flex items-center space-x-4">
-                                                    <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
-                                                        <span className="text-xl">
+                                    {activities && activities.length > 0 ? (
+                                        activities.slice(0, 3).map(
+                                            (
+                                                activity // Show first 3, add pagination if needed
+                                            ) => (
+                                                <div
+                                                    key={activity.id}
+                                                    className="flex flex-col items-start justify-between p-4 transition-shadow rounded-lg sm:flex-row sm:items-center bg-slate-50 dark:bg-slate-700/50 hover:shadow-md"
+                                                >
+                                                    <div className="flex items-center mb-3 space-x-4 sm:mb-0">
+                                                        <div className="flex items-center justify-center w-12 h-12 text-xl rounded-full bg-sky-100 dark:bg-sky-800/50 text-sky-600 dark:text-sky-400">
                                                             {
                                                                 activity.activity_icon
                                                             }
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium">
-                                                            {
-                                                                activity.activity_type_french
-                                                            }
                                                         </div>
-                                                        <div className="text-sm text-gray-600">
-                                                            {
-                                                                activity.formatted_duration
-                                                            }{" "}
-                                                            •{" "}
-                                                            {
-                                                                activity.intensity_french
-                                                            }
-                                                        </div>
-                                                        <div className="flex items-center mt-1 space-x-4">
-                                                            <span className="text-sm text-orange-600">
-                                                                🔥{" "}
+                                                        <div>
+                                                            <div className="font-semibold text-slate-800 dark:text-slate-100">
                                                                 {
-                                                                    activity.formatted_calories
+                                                                    activity.activity_type_french
                                                                 }
-                                                            </span>
-                                                            {todayGlycemia && (
-                                                                <span className="text-sm text-blue-600">
-                                                                    🩸 Glycémie:
-                                                                    -
+                                                            </div>
+                                                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                {
+                                                                    activity.formatted_duration
+                                                                }{" "}
+                                                                •{" "}
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className={`${getIntensityBadgeVariant(
+                                                                        activity.intensity
+                                                                    )} px-1.5 py-0.5 text-xs`}
+                                                                >
                                                                     {
-                                                                        activity.estimated_glycemia_impact
-                                                                    }{" "}
-                                                                    mmol/L
+                                                                        activity.intensity_french
+                                                                    }
+                                                                </Badge>
+                                                            </div>
+                                                            <div className="flex items-center mt-1.5 space-x-3">
+                                                                <span className="flex items-center text-sm text-amber-600 dark:text-amber-400">
+                                                                    <Zap className="w-3.5 h-3.5 mr-1" />{" "}
+                                                                    {
+                                                                        activity.formatted_calories
+                                                                    }
                                                                 </span>
+                                                                {todayGlycemia &&
+                                                                    activity.estimated_glycemia_impact && (
+                                                                        <span className="flex items-center text-sm text-sky-600 dark:text-sky-400">
+                                                                            <ActivityIcon className="w-3.5 h-3.5 mr-1" />{" "}
+                                                                            Δ{" "}
+                                                                            {
+                                                                                activity.estimated_glycemia_impact
+                                                                            }{" "}
+                                                                            mmol/L
+                                                                        </span>
+                                                                    )}
+                                                            </div>
+                                                            {activity.motivational_message && (
+                                                                <p className="mt-1.5 text-xs italic text-slate-500 dark:text-slate-400">
+                                                                    "
+                                                                    {
+                                                                        activity.motivational_message
+                                                                    }
+                                                                    "
+                                                                </p>
                                                             )}
                                                         </div>
-                                                        <p className="mt-1 text-xs italic text-gray-500">
-                                                            {
-                                                                activity.motivational_message
-                                                            }
-                                                        </p>
                                                     </div>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <div className="text-right">
-                                                        <div className="text-sm font-medium">
-                                                            {activity.date}
+                                                    <div className="flex items-center self-start pt-2 space-x-2 sm:self-center sm:pt-0">
+                                                        <div className="text-right">
+                                                            <div className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                                                {activity.date}
+                                                            </div>
+                                                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                                {activity.time}
+                                                            </div>
                                                         </div>
-                                                        <div className="text-sm text-gray-600">
-                                                            {activity.time}
-                                                        </div>
-                                                        <Badge
-                                                            className={
-                                                                activity.activity_color
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                deleteActivity(
+                                                                    activity.id
+                                                                )
                                                             }
+                                                            className="text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-400"
                                                         >
-                                                            {
-                                                                activity.activity_type_french
-                                                            }
-                                                        </Badge>
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
                                                     </div>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            deleteActivity(
-                                                                activity.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
                                                 </div>
-                                            </div>
-                                        ))
+                                            )
+                                        )
                                     ) : (
-                                        <div className="py-8 text-center">
-                                            <p className="mb-4 text-gray-500">
-                                                Aucune activité enregistrée
+                                        <div className="py-10 text-center">
+                                            <Zap className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
+                                            <p className="mb-3 text-slate-600 dark:text-slate-400">
+                                                Aucune activité enregistrée pour
+                                                le moment.
                                             </p>
                                             <Button
                                                 variant="outline"
-                                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                                className="text-emerald-600 border-emerald-500 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-500 dark:hover:bg-emerald-900/50"
                                                 onClick={() =>
                                                     setShowAddForm(true)
                                                 }
                                             >
-                                                + Ajouter votre première
-                                                activité
+                                                <Plus className="w-4 h-4 mr-2" />{" "}
+                                                Ajouter votre première activité
                                             </Button>
                                         </div>
                                     )}
-                                    {activities.length > 0 && (
-                                        <div className="text-center">
+                                    {activities && activities.length > 3 && (
+                                        <div className="pt-2 text-center">
                                             <Button
                                                 variant="link"
-                                                className="text-blue-600"
+                                                className="text-indigo-600 dark:text-indigo-400"
                                             >
-                                                Voir plus d'activités
+                                                Voir toutes les activités
                                             </Button>
                                         </div>
                                     )}
@@ -518,184 +642,214 @@ export default function Index({
                         {/* Right Sidebar */}
                         <div className="space-y-6">
                             {/* Health Benefits */}
-                            <Card>
+                            <Card className="shadow-lg dark:bg-slate-800">
                                 <CardHeader>
-                                    <CardTitle>Bénéfices santé</CardTitle>
+                                    <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                        Bénéfices pour la Santé
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {Object.entries(healthBenefits).map(
-                                        ([key, benefit]) => (
-                                            <div
-                                                key={key}
-                                                className="space-y-2"
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-2">
-                                                        <span>
-                                                            {getBenefitIcon(
-                                                                key
-                                                            )}
-                                                        </span>
-                                                        <span className="text-sm font-medium">
-                                                            {
-                                                                benefit.description
+                                <CardContent className="space-y-5">
+                                    {healthBenefits &&
+                                        Object.entries(healthBenefits).map(
+                                            ([key, benefit]) => {
+                                                const styling =
+                                                    getBenefitStyling(
+                                                        key,
+                                                        benefit.level
+                                                    );
+                                                return (
+                                                    <div key={key}>
+                                                        <div className="flex items-center justify-between mb-1.5">
+                                                            <div
+                                                                className={`flex items-center space-x-2 text-sm font-medium ${styling.textColor}`}
+                                                            >
+                                                                {styling.icon}
+                                                                <span>
+                                                                    {
+                                                                        benefit.description
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            <span
+                                                                className={`text-xs font-semibold uppercase ${styling.textColor}`}
+                                                            >
+                                                                {benefit.level ===
+                                                                "excellent"
+                                                                    ? "Excellent"
+                                                                    : benefit.level ===
+                                                                      "good"
+                                                                    ? "Bien"
+                                                                    : "À Améliorer"}
+                                                            </span>
+                                                        </div>
+                                                        <Progress
+                                                            value={
+                                                                benefit.progress
                                                             }
-                                                        </span>
+                                                            className={`h-2 [&>*]:${styling.progressColorClass}`}
+                                                        />
                                                     </div>
-                                                    <span
-                                                        className={`text-sm font-medium ${getBenefitColor(
-                                                            benefit.level
-                                                        )}`}
-                                                    >
-                                                        {benefit.level ===
-                                                        "excellent"
-                                                            ? "Excellent"
-                                                            : benefit.level ===
-                                                              "good"
-                                                            ? "Bien"
-                                                            : "À améliorer"}
-                                                    </span>
-                                                </div>
-                                                <Progress
-                                                    value={benefit.progress}
-                                                    className="h-2"
-                                                />
-                                            </div>
-                                        )
+                                                );
+                                            }
+                                        )}
+                                    {(!healthBenefits ||
+                                        Object.keys(healthBenefits).length ===
+                                            0) && (
+                                        <p className="py-3 text-sm text-center text-slate-500 dark:text-slate-400">
+                                            Données sur les bénéfices bientôt
+                                            disponibles.
+                                        </p>
                                     )}
                                 </CardContent>
                             </Card>
 
                             {/* Today's Glycemia */}
                             {todayGlycemia && (
-                                <Card>
+                                <Card className="shadow-lg dark:bg-slate-800">
                                     <CardHeader>
-                                        <CardTitle>Glycémie du jour</CardTitle>
+                                        <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                            Glycémie du Jour
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between p-3 rounded-md bg-slate-50 dark:bg-slate-700/50">
                                             <div className="flex items-center space-x-3">
-                                                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                                <div className="w-3 h-3 rounded-full bg-sky-500"></div>
                                                 <div>
-                                                    <div className="font-medium">
+                                                    <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
                                                         Dernière mesure
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-xs text-slate-500 dark:text-slate-400">
                                                         {todayGlycemia.time}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-bold text-blue-600">
+                                                <div className="font-bold text-sky-600 dark:text-sky-400">
                                                     {
                                                         todayGlycemia.formatted_value
                                                     }
                                                 </div>
-                                                <div className="text-sm text-green-600">
+                                                <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                                                     {todayGlycemia.status}
-                                                </div>
+                                                </div>{" "}
+                                                {/* Assuming status is generally positive here */}
                                             </div>
                                         </div>
+                                    </CardContent>
+                                    <CardFooter>
                                         <Button
-                                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                                            className="w-full text-white bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600"
                                             asChild
                                         >
                                             <a href={route("glycemia.index")}>
-                                                + Ajouter une mesure
+                                                <Plus className="w-4 h-4 mr-2" />{" "}
+                                                Ajouter une mesure
                                             </a>
                                         </Button>
-                                    </CardContent>
+                                    </CardFooter>
                                 </Card>
                             )}
 
                             {/* Personalized Recommendations */}
-                            <Card>
+                            <Card className="shadow-lg dark:bg-slate-800">
                                 <CardHeader>
-                                    <CardTitle>
-                                        Recommandations personnalisées
+                                    <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                                        Recommandations
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {recommendations.map(
-                                        (recommendation, index) => (
-                                            <div
-                                                key={index}
-                                                className="p-3 border border-blue-200 rounded-lg bg-blue-50"
-                                            >
-                                                <div className="flex items-center mb-2 space-x-2">
-                                                    <span>
-                                                        {recommendation.icon}
-                                                    </span>
-                                                    <span className="font-medium text-blue-900">
-                                                        {recommendation.title}
-                                                    </span>
+                                <CardContent className="space-y-3">
+                                    {recommendations &&
+                                    recommendations.length > 0 ? (
+                                        recommendations.slice(0, 2).map(
+                                            (
+                                                rec,
+                                                index // Show first 2
+                                            ) => (
+                                                <div
+                                                    key={index}
+                                                    className="p-3.5 border border-indigo-200 dark:border-indigo-700/50 rounded-lg bg-indigo-50 dark:bg-indigo-900/30"
+                                                >
+                                                    <div className="flex items-start space-x-2.5">
+                                                        <span className="text-indigo-600 dark:text-indigo-400 mt-0.5 text-lg">
+                                                            {rec.icon}
+                                                        </span>
+                                                        <div>
+                                                            <span className="block text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+                                                                {rec.title}
+                                                            </span>
+                                                            <p className="text-xs leading-relaxed text-indigo-700 dark:text-indigo-300">
+                                                                {
+                                                                    rec.description
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <p className="text-sm text-blue-800">
-                                                    {recommendation.description}
-                                                </p>
-                                            </div>
+                                            )
                                         )
+                                    ) : (
+                                        <p className="py-3 text-sm text-center text-slate-500 dark:text-slate-400">
+                                            Aucune recommandation pour le
+                                            moment.
+                                        </p>
                                     )}
                                 </CardContent>
                             </Card>
 
-                            {/* Quick Actions */}
-                            <div className="grid grid-cols-1 gap-4">
-                                <Card className="transition-shadow cursor-pointer hover:shadow-md">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full">
-                                                <Target className="w-5 h-5 text-green-600" />
+                            {/* Quick Actions Links */}
+                            <div className="space-y-3">
+                                {[
+                                    {
+                                        title: "Définir Objectifs",
+                                        desc: "Personnalisez vos cibles d'activité.",
+                                        icon: Target,
+                                        color: "emerald",
+                                        href: "#",
+                                    },
+                                    {
+                                        title: "Voir Statistiques",
+                                        desc: "Analysez vos performances détaillées.",
+                                        icon: TrendingUp,
+                                        color: "sky",
+                                        href: "#",
+                                    },
+                                    {
+                                        title: "Programmes Guidés",
+                                        desc: "Découvrez des entraînements adaptés.",
+                                        icon: Heart,
+                                        color: "rose",
+                                        href: "#",
+                                    },
+                                ].map((item) => (
+                                    <Card
+                                        key={item.title}
+                                        className="transition-all duration-300 ease-in-out shadow-md cursor-pointer group hover:shadow-xl dark:bg-slate-800"
+                                    >
+                                        <a
+                                            href={item.href}
+                                            className="block p-4"
+                                        >
+                                            <div className="flex items-center space-x-3">
+                                                <div
+                                                    className={`flex items-center justify-center w-10 h-10 rounded-lg bg-${item.color}-100 dark:bg-${item.color}-500/20 group-hover:bg-${item.color}-200 dark:group-hover:bg-${item.color}-500/30 transition-colors`}
+                                                >
+                                                    <item.icon
+                                                        className={`w-5 h-5 text-${item.color}-600 dark:text-${item.color}-400`}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                                        {item.title}
+                                                    </h3>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {item.desc}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="font-medium text-gray-900">
-                                                    Objectifs
-                                                </h3>
-                                                <p className="text-sm text-gray-600">
-                                                    Définissez vos objectifs
-                                                    d'activité
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="transition-shadow cursor-pointer hover:shadow-md">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                                                <TrendingUp className="w-5 h-5 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-medium text-gray-900">
-                                                    Statistiques
-                                                </h3>
-                                                <p className="text-sm text-gray-600">
-                                                    Analysez vos performances
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="transition-shadow cursor-pointer hover:shadow-md">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-full">
-                                                <Heart className="w-5 h-5 text-purple-600" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-medium text-gray-900">
-                                                    Programmes
-                                                </h3>
-                                                <p className="text-sm text-gray-600">
-                                                    Programmes d'entraînement
-                                                    adaptés
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                        </a>
+                                    </Card>
+                                ))}
                             </div>
                         </div>
                     </div>

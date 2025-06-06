@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import Dropdown from "@/Components/Dropdown";
 import { Link } from "@inertiajs/react";
@@ -7,10 +5,7 @@ import {
     Activity,
     Calendar,
     Utensils,
-    Pill,
     TrendingUp,
-    FileText,
-    Users,
     HelpCircle,
     LogOut,
     Menu,
@@ -60,53 +55,58 @@ export default function Authenticated({ user, header, children }) {
     ];
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-slate-100 dark:bg-slate-900">
             {/* Sidebar */}
-            <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-                <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white border-r border-gray-200">
-                    <div className="flex items-center flex-shrink-0 px-4">
-                        <div className="flex items-center space-x-2">
-                            <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-lg">
-                                <Activity className="w-5 h-5 text-white" />
+            <div className="hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0">
+                <div className="flex flex-col flex-grow pt-6 pb-4 overflow-y-auto bg-white border-r shadow-md dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center flex-shrink-0 px-6">
+                        <div className="flex items-center space-x-3">
+                            <div className="flex items-center justify-center w-10 h-10 shadow-lg bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl">
+                                <Activity className="w-6 h-6 text-white" />
                             </div>
-                            <span className="text-xl font-bold text-gray-900">
-                                GlucTrack
-                            </span>
+                            <Link
+                                href={route("dashboard")}
+                                className="text-2xl font-bold cursor-pointer text-slate-800 dark:text-white"
+                            >
+                                Diabby
+                            </Link>
                         </div>
                     </div>
-                    <div className="flex flex-col flex-grow mt-5">
-                        <nav className="flex-1 px-2 space-y-1">
+                    <div className="flex flex-col flex-grow mt-8">
+                        <nav className="flex-1 px-4 space-y-2">
                             {navigation.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
                                     className={`${
                                         item.current
-                                            ? "bg-blue-50 border-r-2 border-blue-600 text-blue-700"
-                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                                            ? "bg-indigo-50 dark:bg-indigo-700/30 text-indigo-700 dark:text-indigo-300 font-semibold border-l-4 border-indigo-600 dark:border-indigo-500"
+                                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                                    } group flex items-center px-3 py-3 text-sm rounded-lg transition-all duration-200 ease-in-out`}
                                 >
                                     <item.icon
                                         className={`${
                                             item.current
-                                                ? "text-blue-500"
-                                                : "text-gray-400 group-hover:text-gray-500"
-                                        } mr-3 flex-shrink-0 h-5 w-5`}
+                                                ? "text-indigo-600 dark:text-indigo-400"
+                                                : "text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300"
+                                        } mr-3 flex-shrink-0 h-6 w-6 transition-colors duration-200`}
                                     />
                                     {item.name}
                                 </Link>
                             ))}
                         </nav>
-                        <div className="px-2 space-y-1">
+                        <div className="px-4 pt-6 mt-auto space-y-2">
+                            {" "}
+                            {/* Added mt-auto to push to bottom, and pt-6 for spacing */}
                             {supportNavigation.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
                                     method={item.method || "get"}
                                     as={item.method ? "button" : "a"}
-                                    className="flex items-center w-full px-2 py-2 text-sm font-medium text-left text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900 group"
+                                    className="flex items-center w-full px-3 py-3 text-sm font-medium text-left transition-all duration-200 ease-in-out rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white group"
                                 >
-                                    <item.icon className="flex-shrink-0 w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500" />
+                                    <item.icon className="flex-shrink-0 w-6 h-6 mr-3 transition-colors duration-200 text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300" />
                                     {item.name}
                                 </Link>
                             ))}
@@ -116,11 +116,11 @@ export default function Authenticated({ user, header, children }) {
             </div>
 
             {/* Main content */}
-            <div className="flex flex-col flex-1 lg:pl-64">
-                <div className="sticky top-0 z-10 flex flex-shrink-0 h-16 bg-white shadow">
+            <div className="flex flex-col flex-1 lg:pl-72">
+                <div className="sticky top-0 z-20 flex items-center flex-shrink-0 border-b shadow-sm h-30 g-white f dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                     <button
                         type="button"
-                        className="px-4 text-gray-500 border-r border-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+                        className="px-4 border-r text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
                         onClick={() =>
                             setShowingNavigationDropdown(
                                 !showingNavigationDropdown
@@ -134,7 +134,7 @@ export default function Authenticated({ user, header, children }) {
                             <Menu className="w-6 h-6" />
                         )}
                     </button>
-                    <div className="flex justify-between flex-1 px-4">
+                    <div className="flex justify-between flex-1 px-4 sm:px-6 lg:px-8">
                         <div className="flex-1">
                             {header && (
                                 <header className="py-4">{header}</header>
@@ -146,7 +146,7 @@ export default function Authenticated({ user, header, children }) {
                                     <span className="inline-flex rounded-md">
                                         <button
                                             type="button"
-                                            className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none"
+                                            className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 transition duration-150 ease-in-out bg-white border border-transparent rounded-md text-slate-600 dark:text-slate-300 dark:bg-slate-800 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                         >
                                             {user && user.name
                                                 ? user.name
@@ -167,14 +167,22 @@ export default function Authenticated({ user, header, children }) {
                                     </span>
                                 </Dropdown.Trigger>
 
-                                <Dropdown.Content>
-                                    <Dropdown.Link href={route("profile.edit")}>
+                                <Dropdown.Content
+                                    align="right"
+                                    width="48"
+                                    contentClasses="bg-white dark:bg-slate-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1"
+                                >
+                                    <Dropdown.Link
+                                        href={route("profile.edit")}
+                                        className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600"
+                                    >
                                         Profile
                                     </Dropdown.Link>
                                     <Dropdown.Link
                                         href={route("logout")}
                                         method="post"
                                         as="button"
+                                        className="w-full text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600"
                                     >
                                         Log Out
                                     </Dropdown.Link>
@@ -184,66 +192,106 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
 
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 py-6">{children}</main>
             </div>
 
             {/* Mobile menu */}
             {showingNavigationDropdown && (
-                <div className="lg:hidden">
+                <div className="lg:hidden" role="dialog" aria-modal="true">
                     <div className="fixed inset-0 z-40 flex">
+                        {/* Overlay */}
                         <div
-                            className="fixed inset-0 bg-gray-600 bg-opacity-75"
+                            className="fixed inset-0 bg-slate-600/75 dark:bg-slate-900/80 backdrop-blur-sm"
+                            aria-hidden="true"
                             onClick={() => setShowingNavigationDropdown(false)}
                         />
-                        <div className="relative flex flex-col flex-1 w-full max-w-xs bg-white">
-                            <div className="absolute top-0 right-0 pt-2 -mr-12">
+                        {/* Sidebar */}
+                        <div className="relative flex flex-col flex-1 w-full max-w-xs bg-white shadow-xl dark:bg-slate-800">
+                            <div className="absolute top-0 right-0 pt-3 -mr-14">
                                 <button
                                     type="button"
-                                    className="flex items-center justify-center w-10 h-10 ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                                    className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-slate-300 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-white"
                                     onClick={() =>
                                         setShowingNavigationDropdown(false)
                                     }
                                 >
-                                    <X className="w-6 h-6 text-white" />
+                                    <X className="w-6 h-6" />
+                                    <span className="sr-only">
+                                        Close sidebar
+                                    </span>
                                 </button>
                             </div>
-                            <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                                <div className="flex items-center flex-shrink-0 px-4">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-lg">
-                                            <Activity className="w-5 h-5 text-white" />
+                            <div className="flex-1 h-0 pt-6 pb-4 overflow-y-auto">
+                                <div className="flex items-center flex-shrink-0 px-6">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex items-center justify-center w-10 h-10 shadow-lg bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl">
+                                            <Activity className="w-6 h-6 text-white" />
                                         </div>
                                         <Link
                                             href={route("dashboard")}
-                                            className="text-xl font-bold text-gray-900"
+                                            className="text-2xl font-bold text-slate-800 dark:text-white"
+                                            onClick={() =>
+                                                setShowingNavigationDropdown(
+                                                    false
+                                                )
+                                            }
                                         >
                                             GlucTrack
                                         </Link>
                                     </div>
                                 </div>
-                                <nav className="px-2 mt-5 space-y-1">
+                                <nav className="px-4 mt-8 space-y-2">
                                     {navigation.map((item) => (
                                         <Link
                                             key={item.name}
                                             href={item.href}
+                                            onClick={() =>
+                                                setShowingNavigationDropdown(
+                                                    false
+                                                )
+                                            }
                                             className={`${
                                                 item.current
-                                                    ? "bg-blue-50 border-r-2 border-blue-600 text-blue-700"
-                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                                            } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                                                    ? "bg-indigo-50 dark:bg-indigo-700/30 text-indigo-700 dark:text-indigo-300 font-semibold border-l-4 border-indigo-600 dark:border-indigo-500"
+                                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                                            } group flex items-center px-3 py-3 text-base rounded-lg transition-all duration-200 ease-in-out`}
                                         >
                                             <item.icon
                                                 className={`${
                                                     item.current
-                                                        ? "text-blue-500"
-                                                        : "text-gray-400 group-hover:text-gray-500"
-                                                } mr-4 flex-shrink-0 h-6 w-6`}
+                                                        ? "text-indigo-600 dark:text-indigo-400"
+                                                        : "text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300"
+                                                } mr-4 flex-shrink-0 h-6 w-6 transition-colors duration-200`}
                                             />
                                             {item.name}
                                         </Link>
                                     ))}
+                                    <div className="pt-6 mt-4 border-t border-slate-200 dark:border-slate-700">
+                                        {supportNavigation.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                method={item.method || "get"}
+                                                as={
+                                                    item.method ? "button" : "a"
+                                                }
+                                                onClick={() =>
+                                                    setShowingNavigationDropdown(
+                                                        false
+                                                    )
+                                                }
+                                                className="flex items-center w-full px-3 py-3 text-base font-medium text-left transition-all duration-200 ease-in-out rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white group"
+                                            >
+                                                <item.icon className="flex-shrink-0 w-6 h-6 mr-4 transition-colors duration-200 text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300" />
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </div>
                                 </nav>
                             </div>
+                        </div>
+                        <div className="flex-shrink-0 w-14" aria-hidden="true">
+                            {/* Dummy element to force sidebar to shrink to fit close icon */}
                         </div>
                     </div>
                 </div>

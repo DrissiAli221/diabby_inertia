@@ -3,35 +3,69 @@
 @tailwind utilities;
 
 :root {
-    --navbar-height: 5rem; /* Adjust to your actual navbar height */
+    --navbar-height: 5rem;
 }
 
-/* Aurora Background Styling */
-.aurora-outer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0; /* fill parent */
-    background-image: radial-gradient(
-            ellipse at 20% 30%,
-            theme("colors.cyan.300 / 0.3"),
-            transparent 50%
-        ),
-        radial-gradient(
-            ellipse at 70% 40%,
-            theme("colors.sky.300 / 0.3"),
-            transparent 50%
-        ),
-        radial-gradient(
-            ellipse at 50% 80%,
-            theme("colors.teal.300 / 0.2"),
-            transparent 50%
-        );
-    filter: blur(50px) opacity(0.8); /* Soften and blend */
-    mix-blend-mode: multiply; /* Blends well with background gradient */
-    animation: aurora-outer 30s ease-in-out infinite alternate; /* Apply Tailwind animation */
-}
+@keyframes feature-border-glow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .animate-feature-border-glow {
+    background: linear-gradient(90deg, transparent, theme('colors.cyan.400'), transparent);
+    background-size: 200% 100%;
+    animation: feature-border-glow 3s linear infinite;
+  }
+  
+  /* Aurora background styles (if not already defined elsewhere from your magicui components) */
+  .aurora-outer {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      left: -50%;
+      top: -50%;
+      pointer-events: none;
+      background-image:
+          radial-gradient(ellipse at center, rgba(var(--aurora-color-1, 0, 191, 255), 0.3) 0%, transparent 40%), /* Cyan-ish */
+          radial-gradient(ellipse at top right, rgba(var(--aurora-color-2, 6, 182, 212), 0.3) 0%, transparent 35%), /* Sky-ish */
+          radial-gradient(ellipse at bottom left, rgba(var(--aurora-color-3, 20, 184, 166), 0.25) 0%, transparent 35%); /* Teal-ish */
+      background-repeat: no-repeat;
+      animation: aurora-pan 25s linear infinite;
+      opacity: 0.7; /* Adjust as needed */
+  }
+  
+  .dark .aurora-outer {
+      background-image:
+          radial-gradient(ellipse at center, rgba(var(--aurora-color-1-dark, 14, 116, 144), 0.4) 0%, transparent 40%), /* Darker Cyan */
+          radial-gradient(ellipse at top right, rgba(var(--aurora-color-2-dark, 8, 145, 178), 0.35) 0%, transparent 35%), /* Darker Sky */
+          radial-gradient(ellipse at bottom left, rgba(var(--aurora-color-3-dark, 15, 118, 110), 0.3) 0%, transparent 35%); /* Darker Teal */
+       opacity: 0.5;
+  }
+  
+  
+  @keyframes aurora-pan {
+      0% { transform: translateX(0) translateY(0) rotate(0deg); }
+      25% { transform: translateX(5%) translateY(10%) rotate(5deg); }
+      50% { transform: translateX(-5%) translateY(5%) rotate(-5deg); }
+      75% { transform: translateX(10%) translateY(-5%) rotate(10deg); }
+      100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  }
+  
+  /* Shimmer effect for buttons (if not already defined) */
+  @keyframes shimmer {
+      0% { transform: translateX(-100%) skewX(-15deg); }
+      100% { transform: translateX(100%) skewX(-15deg); }
+  }
+  .animate-shimmer {
+      animation: shimmer 1.5s infinite linear;
+  }
 
 .dark .aurora-outer {
     background-image: radial-gradient(
@@ -90,7 +124,7 @@
     mix-blend-mode: lighten;
 }
 
-/* Feature Card Animated Border - add to your app.css */
+
 @layer components {
     .animate-feature-border-glow {
         @apply absolute -inset-px rounded-xl; /* Slightly larger than parent to create border effect */
